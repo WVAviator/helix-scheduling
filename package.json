@@ -1,0 +1,20 @@
+{
+	"name": "helix",
+	"version": "0.0.1",
+	"description": "A scheduling app for managing employee schedules",
+	"main": "index.js",
+	"author": "WVAviator <wvaviator@gmail.com>",
+	"license": "MIT",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"start": "lerna run --parallel start",
+		"start:dev": "lerna run --parallel start:dev"
+	},
+	"devDependencies": {
+		"lerna": "^5.1.8",
+		"typescript": "^4.7.4"
+	}
+}
