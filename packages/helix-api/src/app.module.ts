@@ -8,9 +8,9 @@ import { OrganizationsModule } from './organizations/organizations.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'helix',
+      database: 'helix.sqlite',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: true, //TODO: Remove this line when in production
     }),
     OrganizationsModule,
   ],

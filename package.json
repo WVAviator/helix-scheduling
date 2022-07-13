@@ -11,7 +11,8 @@
 	],
 	"scripts": {
 		"start": "lerna run --parallel start",
-		"start:dev": "lerna run --parallel start:dev"
+		"start:dev": "lerna run --parallel start:dev",
+		"test": "lerna run --parallel test"
 	},
 	"devDependencies": {
 		"lerna": "^5.1.8",
