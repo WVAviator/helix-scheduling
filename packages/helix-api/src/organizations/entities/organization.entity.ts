@@ -1,4 +1,4 @@
-import { Employee } from '../../employee/entities/employee.entity';
+import { User } from '../../user/entities/user.entity';
 
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
@@ -13,8 +13,8 @@ export class Organization {
   @Column()
   slug: string;
 
-  @OneToMany(() => Employee, (employee) => employee.organization, {
+  @OneToMany(() => User, (user) => user.organization, {
     onDelete: 'CASCADE',
   })
-  employees: Employee[];
+  users: User[];
 }

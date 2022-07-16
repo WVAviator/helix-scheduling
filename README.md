@@ -1,3 +1,3 @@
 # Helix
 
-A full stack employee scheduling application using NestJS and NextJS.
+A full stack user scheduling application using NestJS and NextJS.

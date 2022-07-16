@@ -1,15 +1,15 @@
 import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationsService } from './../organizations/organizations.service';
+import { OrganizationsService } from '../organizations/organizations.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { EmployeeService } from './employee.service';
-import { Employee } from './entities/employee.entity';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
 
-describe('EmployeeService', () => {
-  let service: EmployeeService;
+describe('UserService', () => {
+  let userService: UsersService;
   let dataSource: DataSource;
-  let employeeRepository: Repository<Employee>;
+  let userRepository: Repository<User>;
   let organizationRepository: Repository<Organization>;
   let fakeOrganizationsService: Partial<OrganizationsService>;
 
@@ -17,11 +17,12 @@ describe('EmployeeService', () => {
     dataSource = new DataSource({
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: [Employee, Organization],
+      entities: [User, Organization],
+      synchronize: true,
     });
     await dataSource.initialize();
 
-    employeeRepository = dataSource.getRepository(Employee);
+    userRepository = dataSource.getRepository(User);
     organizationRepository = dataSource.getRepository(Organization);
     const testOrganization = await organizationRepository.create({
       name: 'Test Organization',
@@ -36,10 +37,10 @@ describe('EmployeeService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        EmployeeService,
+        UsersService,
         {
-          provide: getRepositoryToken(Employee),
-          useValue: employeeRepository,
+          provide: getRepositoryToken(User),
+          useValue: userRepository,
         },
         {
           provide: OrganizationsService,
@@ -52,72 +53,72 @@ describe('EmployeeService', () => {
       ],
     }).compile();
 
-    service = module.get<EmployeeService>(EmployeeService);
+    userService = module.get<UsersService>(UsersService);
   });
 
   afterEach(async () => {
-    employeeRepository.clear();
+    userRepository.clear();
     organizationRepository.clear();
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(userService).toBeDefined();
   });
 
-  it('should add and find an employee in the database', async () => {
-    await service.create({
+  it('should add and find an user in the database', async () => {
+    await userService.create({
       name: 'John',
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
     });
-    const employees = await service.findAll();
-    expect(employees.length).toBe(1);
-    expect(employees[0].name).toBe('John');
-    expect(employees[0].title).toBe('Software Engineer');
-    expect(employees[0].email).toBe('john@gmail.com');
+    const users = await userService.findAll();
+    expect(users.length).toBe(1);
+    expect(users[0].name).toBe('John');
+    expect(users[0].title).toBe('Software Engineer');
+    expect(users[0].email).toBe('john@gmail.com');
   });
 
-  it('should update an employee in the database', async () => {
-    const employee = await service.create({
+  it('should update an user in the database', async () => {
+    const user = await userService.create({
       name: 'John',
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
     });
-    await service.update(employee.id, { email: 'john2@gmail.com' });
-    const queriedEmployee = await service.findByEmail('john2@gmail.com');
+    await userService.update(user.id, { email: 'john2@gmail.com' });
+    const queriedUser = await userService.findByEmail('john2@gmail.com');
 
-    expect(queriedEmployee.name).toBe('John');
-    expect(queriedEmployee.title).toBe('Software Engineer');
+    expect(queriedUser.name).toBe('John');
+    expect(queriedUser.title).toBe('Software Engineer');
   });
 
-  it('should delete an employee from the database', async () => {
-    const employee = await service.create({
+  it('should delete an user from the database', async () => {
+    const user = await userService.create({
       name: 'John',
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
     });
-    await service.remove(employee.id);
-    const employees = await service.findAll();
-    expect(employees.length).toBe(0);
+    await userService.remove(user.id);
+    const users = await userService.findAll();
+    expect(users.length).toBe(0);
   });
 
-  it('should error if attempting to update or delete nonexistent employee', async () => {
-    const employee = await service.create({
+  it('should error if attempting to update or delete nonexistent user', async () => {
+    const user = await userService.create({
       name: 'John',
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
     });
-    await expect(service.remove(employee.id + 1)).rejects.toThrow();
+    await expect(userService.remove(user.id + 1)).rejects.toThrow();
     await expect(
-      service.update(employee.id + 1, { email: 'john2@gmail.com' }),
+      userService.update(user.id + 1, { email: 'john2@gmail.com' }),
     ).rejects.toThrow();
   });
 });

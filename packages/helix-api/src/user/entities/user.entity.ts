@@ -1,4 +1,4 @@
-import { Organization } from './../../organizations/entities/organization.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 import {
   Column,
   Entity,
@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Employee {
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -24,7 +24,7 @@ export class Employee {
   @Column({ select: false })
   password: string;
 
-  @ManyToOne(() => Organization, (organization) => organization.employees, {
+  @ManyToOne(() => Organization, (organization) => organization.users, {
     eager: true,
   })
   @JoinColumn({ name: 'organizationId' })

@@ -1,41 +1,41 @@
 import { Organization } from 'src/organizations/entities/organization.entity';
 import { Test } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { EmployeeService } from './employee.service';
-import { Employee } from './entities/employee.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
 describe('AuthService', () => {
   let authService: AuthService;
-  let fakeEmployeeService: Partial<EmployeeService>;
+  let fakeUserService: Partial<UsersService>;
 
   beforeEach(async () => {
-    const employees: Employee[] = [];
-    fakeEmployeeService = {
-      create: (createEmployeeDto: CreateEmployeeDto) => {
-        const { organizationId, ...rest } = createEmployeeDto;
+    const users: User[] = [];
+    fakeUserService = {
+      create: (createUserDto: CreateUserDto) => {
+        const { organizationId, ...rest } = createUserDto;
         const organization: Organization = {
           id: organizationId,
           name: 'Company',
           slug: 'company',
-          employees: [],
+          users: [],
         };
-        const employee = {
+        const user = {
           id: Math.floor(Math.random() * 99999),
           organization,
           ...rest,
-        } as Employee;
-        employees.push(employee);
-        return Promise.resolve(employee);
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
       },
-      findAll: () => Promise.resolve(employees),
+      findAll: () => Promise.resolve(users),
       findByEmail: (email: string) => {
-        const employee = employees.find((employee) => employee.email === email);
-        return Promise.resolve(employee);
+        const user = users.find((user) => user.email === email);
+        return Promise.resolve(user);
       },
     };
     const module = await Test.createTestingModule({
       providers: [
-        { provide: EmployeeService, useValue: fakeEmployeeService },
+        { provide: UsersService, useValue: fakeUserService },
         AuthService,
       ],
     }).compile();
@@ -44,30 +44,30 @@ describe('AuthService', () => {
   });
 
   it('should salt and hash a password', async () => {
-    const employee = await authService.createEmployee({
+    const user = await authService.createUser({
       name: 'John',
       email: 'john@gmail.com',
       password: '123!',
       title: 'Software Engineer',
       organizationId: 1,
     });
-    expect(employee.password).not.toBe('123!');
+    expect(user.password).not.toBe('123!');
   });
 
   it('should validate a password', async () => {
-    await authService.createEmployee({
+    await authService.createUser({
       name: 'John',
       email: 'john@gmail.com',
       password: '123!',
       title: 'Software Engineer',
       organizationId: 1,
     });
-    const employee = await authService.authenticate('john@gmail.com', '123!');
-    expect(employee).toBeDefined();
+    const user = await authService.authenticate('john@gmail.com', '123!');
+    expect(user).toBeDefined();
   });
 
   it('should reject an incorrect password', async () => {
-    await authService.createEmployee({
+    await authService.createUser({
       name: 'John',
       email: 'john@gmail.com',
       password: '123!',

@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { EmployeeController } from './employee.controller';
-import { EmployeeService } from './employee.service';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
-describe('EmployeeController', () => {
-  let controller: EmployeeController;
-  let fakeEmployeeService: Partial<EmployeeService>;
+describe('UserController', () => {
+  let controller: UsersController;
+  let fakeUserService: Partial<UsersService>;
   let fakeAuthService: Partial<AuthService>;
 
   beforeEach(async () => {
-    fakeEmployeeService = {
+    fakeUserService = {
       create: jest.fn(),
       findAll: jest.fn(),
       findById: jest.fn(),
@@ -18,19 +18,19 @@ describe('EmployeeController', () => {
     };
 
     fakeAuthService = {
-      createEmployee: jest.fn(),
+      createUser: jest.fn(),
       authenticate: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [EmployeeController],
+      controllers: [UsersController],
       providers: [
-        { provide: EmployeeService, useValue: fakeEmployeeService },
+        { provide: UsersService, useValue: fakeUserService },
         { provide: AuthService, useValue: fakeAuthService },
       ],
     }).compile();
 
-    controller = module.get<EmployeeController>(EmployeeController);
+    controller = module.get<UsersController>(UsersController);
   });
 
   it('should be defined', () => {

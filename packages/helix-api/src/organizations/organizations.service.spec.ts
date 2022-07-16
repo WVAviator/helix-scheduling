@@ -1,5 +1,4 @@
-import { clearDatabase } from '../tests/helpers/clear-database.helper';
-import { Employee } from '../employee/entities/employee.entity';
+import { User } from '../user/entities/user.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -10,18 +9,19 @@ describe('OrganizationsService', () => {
   let service: OrganizationsService;
   let dataSource: DataSource;
   let organizationsRepository: Repository<Organization>;
-  let employeeRepository: Repository<Employee>;
+  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     dataSource = new DataSource({
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: [Organization, Employee],
+      entities: [Organization, User],
+      synchronize: true,
     });
     await dataSource.initialize();
 
     organizationsRepository = dataSource.getRepository(Organization);
-    employeeRepository = dataSource.getRepository(Employee);
+    userRepository = dataSource.getRepository(User);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -31,8 +31,8 @@ describe('OrganizationsService', () => {
           useValue: organizationsRepository,
         },
         {
-          provide: getRepositoryToken(Employee),
-          useValue: employeeRepository,
+          provide: getRepositoryToken(User),
+          useValue: userRepository,
         },
       ],
     }).compile();
@@ -41,7 +41,7 @@ describe('OrganizationsService', () => {
   });
 
   afterEach(async () => {
-    employeeRepository.clear();
+    userRepository.clear();
     organizationsRepository.clear();
   });
 

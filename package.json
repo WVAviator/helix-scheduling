@@ -1,7 +1,7 @@
 {
 	"name": "helix",
 	"version": "0.0.1",
-	"description": "A scheduling app for managing employee schedules",
+	"description": "A scheduling app for managing user schedules",
 	"main": "index.js",
 	"author": "WVAviator <wvaviator@gmail.com>",
 	"license": "MIT",

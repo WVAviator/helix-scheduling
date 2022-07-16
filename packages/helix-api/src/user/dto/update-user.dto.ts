@@ -9,9 +9,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { CreateEmployeeDto } from './create-employee.dto';
+import { CreateUserDto } from './create-user.dto';
 
-export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
+export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
