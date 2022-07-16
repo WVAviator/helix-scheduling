@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Employee } from '../../employee/entities/employee.entity';
+
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class Organization {
@@ -10,4 +12,7 @@ export class Organization {
 
   @Column()
   slug: string;
+
+  // @OneToMany(() => Employee, (employee) => employee.organization)
+  // employees: Employee[];
 }
