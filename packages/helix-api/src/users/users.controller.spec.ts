@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 describe('UserController', () => {
   let controller: UsersController;
   let fakeUserService: Partial<UsersService>;
-  let fakeAuthService: Partial<AuthService>;
 
   beforeEach(async () => {
     fakeUserService = {
@@ -17,17 +15,9 @@ describe('UserController', () => {
       remove: jest.fn(),
     };
 
-    fakeAuthService = {
-      createUser: jest.fn(),
-      authenticate: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [
-        { provide: UsersService, useValue: fakeUserService },
-        { provide: AuthService, useValue: fakeAuthService },
-      ],
+      providers: [{ provide: UsersService, useValue: fakeUserService }],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

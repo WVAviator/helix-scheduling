@@ -1,14 +1,15 @@
 import { OrganizationsService } from '../organizations/organizations.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
+import { FindOptionsSelect, Repository } from 'typeorm';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 interface FindUserOptions {
   includePassword?: boolean;
 }
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,7 +19,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { name, email, title, password, organizationId } = createUserDto;
+    const { email, password, organizationId } = createUserDto;
     const organization = await this.organizationsService.findById(
       +organizationId,
     );
@@ -28,9 +29,7 @@ export class UsersService {
       );
     }
     const user = this.userRepository.create({
-      name,
       email,
-      title,
       password,
       organization,
     });
@@ -60,27 +59,21 @@ export class UsersService {
   }
 
   findById(id: number, options: FindUserOptions = {}) {
-    if (options.includePassword) {
-      return this.userRepository
-        .createQueryBuilder()
-        .where('user.id = :id', { id })
-        .addSelect('password')
-        .getOne();
-    }
-
-    return this.userRepository.findOne({ where: { id } });
+    return this.userRepository.findOne({
+      where: { id },
+      select: options.includePassword
+        ? ['id', 'email', 'password']
+        : ['id', 'email'],
+    });
   }
 
   findByEmail(email: string, options: FindUserOptions = {}) {
-    if (options.includePassword) {
-      return this.userRepository
-        .createQueryBuilder()
-        .where('user.email = :email', { email })
-        .addSelect('password')
-        .getOne();
-    }
-
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({
+      where: { email },
+      select: options.includePassword
+        ? ['id', 'email', 'password']
+        : ['id', 'email'],
+    });
   }
 
   async update(id: number, updateUserDto: Partial<UpdateUserDto>) {

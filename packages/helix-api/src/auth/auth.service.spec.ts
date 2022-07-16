@@ -1,9 +1,11 @@
+import { CreateUserDto } from './dto/create-user.dto';
 import { Organization } from 'src/organizations/entities/organization.entity';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 import { Test } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+
 describe('AuthService', () => {
   let authService: AuthService;
   let fakeUserService: Partial<UsersService>;
@@ -37,6 +39,7 @@ describe('AuthService', () => {
       providers: [
         { provide: UsersService, useValue: fakeUserService },
         AuthService,
+        JwtService,
       ],
     }).compile();
 
@@ -45,10 +48,8 @@ describe('AuthService', () => {
 
   it('should salt and hash a password', async () => {
     const user = await authService.createUser({
-      name: 'John',
       email: 'john@gmail.com',
       password: '123!',
-      title: 'Software Engineer',
       organizationId: 1,
     });
     expect(user.password).not.toBe('123!');
@@ -56,26 +57,36 @@ describe('AuthService', () => {
 
   it('should validate a password', async () => {
     await authService.createUser({
-      name: 'John',
       email: 'john@gmail.com',
       password: '123!',
-      title: 'Software Engineer',
       organizationId: 1,
     });
-    const user = await authService.authenticate('john@gmail.com', '123!');
+    const user = await authService.validateUser('john@gmail.com', '123!');
     expect(user).toBeDefined();
   });
 
   it('should reject an incorrect password', async () => {
     await authService.createUser({
-      name: 'John',
       email: 'john@gmail.com',
       password: '123!',
-      title: 'Software Engineer',
       organizationId: 1,
     });
     await expect(
-      authService.authenticate('john@gmail.com', 'ABC!'),
+      authService.validateUser('john@gmail.com', 'ABC!'),
     ).rejects.toThrow();
+  });
+
+  it('two passwords should not have matching hashes', async () => {
+    const user1 = await authService.createUser({
+      email: 'john@gmail.com',
+      password: '123!',
+      organizationId: 1,
+    });
+    const user2 = await authService.createUser({
+      email: 'jane@gmail.com',
+      password: '123!',
+      organizationId: 1,
+    });
+    expect(user1.password).not.toBe(user2.password);
   });
 });

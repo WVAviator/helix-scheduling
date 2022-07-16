@@ -13,12 +13,6 @@ export class User {
   id: number;
 
   @Column()
-  name: string;
-
-  @Column()
-  title: string;
-
-  @Column()
   email: string;
 
   @Column({ select: false })

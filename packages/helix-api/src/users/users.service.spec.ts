@@ -67,23 +67,17 @@ describe('UserService', () => {
 
   it('should add and find an user in the database', async () => {
     await userService.create({
-      name: 'John',
-      title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
     });
     const users = await userService.findAll();
     expect(users.length).toBe(1);
-    expect(users[0].name).toBe('John');
-    expect(users[0].title).toBe('Software Engineer');
     expect(users[0].email).toBe('john@gmail.com');
   });
 
   it('should update an user in the database', async () => {
     const user = await userService.create({
-      name: 'John',
-      title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
@@ -91,14 +85,11 @@ describe('UserService', () => {
     await userService.update(user.id, { email: 'john2@gmail.com' });
     const queriedUser = await userService.findByEmail('john2@gmail.com');
 
-    expect(queriedUser.name).toBe('John');
-    expect(queriedUser.title).toBe('Software Engineer');
+    expect(queriedUser).toBeDefined();
   });
 
   it('should delete an user from the database', async () => {
     const user = await userService.create({
-      name: 'John',
-      title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,
@@ -110,8 +101,6 @@ describe('UserService', () => {
 
   it('should error if attempting to update or delete nonexistent user', async () => {
     const user = await userService.create({
-      name: 'John',
-      title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
       organizationId: 1,

@@ -1,4 +1,4 @@
-import { User } from '../user/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';

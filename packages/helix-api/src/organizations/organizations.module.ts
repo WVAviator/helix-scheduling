@@ -1,4 +1,4 @@
-import { User } from '../user/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { OrganizationsController } from './organizations.controller';

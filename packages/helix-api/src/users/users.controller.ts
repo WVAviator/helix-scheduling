@@ -1,41 +1,26 @@
-import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './../auth/jwt-auth.guard';
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly userService: UsersService,
-    private authService: AuthService,
-  ) {}
-
-  @Post('/signup')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.authService.createUser(createUserDto);
-  }
-
-  @Post('/signin')
-  async signin(
-    @Body() { email, password }: { email: string; password: string },
-  ) {
-    return this.authService.authenticate(email, password);
-  }
+  constructor(private readonly userService: UsersService) {}
 
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findById(+id);

@@ -1,19 +1,25 @@
+import { User } from './../users/entities/user.entity';
+import { promisify } from 'util';
+import { UsersService } from '../users/users.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
-import { promisify } from 'util';
+import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UsersService } from './users.service';
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const { name, email, title, password, organizationId } = createUserDto;
+    const { email, password, organizationId } = createUserDto;
+    console.log(password);
 
-    const existingUser = await this.userService.findByEmail(email);
+    const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException(`User with email ${email} already exists`);
     }
@@ -23,18 +29,16 @@ export class AuthService {
 
     const result = salt + '$' + hash.toString('hex');
 
-    const user = this.userService.create({
-      name,
+    const user = this.usersService.create({
       email,
-      title,
       password: result,
       organizationId,
     });
     return user;
   }
 
-  async authenticate(email: string, password: string) {
-    const user = await this.userService.findByEmail(email, {
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email, {
       includePassword: true,
     });
     if (!user) {
@@ -49,5 +53,14 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async login(user: User) {
+    const payload = { username: user.email, sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET_KEY,
+      }),
+    };
   }
 }
