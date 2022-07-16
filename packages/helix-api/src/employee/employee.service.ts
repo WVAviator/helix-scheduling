@@ -7,6 +7,9 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
 
+interface FindEmployeeOptions {
+  includePassword?: boolean;
+}
 @Injectable()
 export class EmployeeService {
   constructor(
@@ -57,11 +60,27 @@ export class EmployeeService {
     return this.employeeRepository.find();
   }
 
-  findById(id: number) {
+  findById(id: number, options: FindEmployeeOptions = {}) {
+    if (options.includePassword) {
+      return this.employeeRepository
+        .createQueryBuilder()
+        .where('employee.id = :id', { id })
+        .addSelect('password')
+        .getOne();
+    }
+
     return this.employeeRepository.findOne({ where: { id } });
   }
 
-  findByEmail(email: string) {
+  findByEmail(email: string, options: FindEmployeeOptions = {}) {
+    if (options.includePassword) {
+      return this.employeeRepository
+        .createQueryBuilder()
+        .where('employee.email = :email', { email })
+        .addSelect('password')
+        .getOne();
+    }
+
     return this.employeeRepository.findOne({ where: { email } });
   }
 

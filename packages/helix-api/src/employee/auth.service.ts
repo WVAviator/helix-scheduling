@@ -36,7 +36,9 @@ export class AuthService {
   }
 
   async authenticate(email: string, password: string) {
-    const employee = await this.employeeService.findByEmail(email);
+    const employee = await this.employeeService.findByEmail(email, {
+      includePassword: true,
+    });
     if (!employee) {
       throw new BadRequestException(`Employee with email ${email} not found`);
     }

@@ -21,7 +21,7 @@ export class Employee {
   @Column()
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @ManyToOne(() => Organization, (organization) => organization.employees, {

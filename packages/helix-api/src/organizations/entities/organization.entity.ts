@@ -13,6 +13,8 @@ export class Organization {
   @Column()
   slug: string;
 
-  @OneToMany(() => Employee, (employee) => employee.organization)
+  @OneToMany(() => Employee, (employee) => employee.organization, {
+    onDelete: 'CASCADE',
+  })
   employees: Employee[];
 }

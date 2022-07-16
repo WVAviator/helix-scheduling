@@ -1,3 +1,4 @@
+import { clearDatabase } from '../tests/helpers/clear-database.helper';
 import { Employee } from '../employee/entities/employee.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -16,7 +17,6 @@ describe('OrganizationsService', () => {
       type: 'sqlite',
       database: 'test.sqlite',
       entities: [Organization, Employee],
-      synchronize: true,
     });
     await dataSource.initialize();
 
@@ -41,8 +41,8 @@ describe('OrganizationsService', () => {
   });
 
   afterEach(async () => {
-    organizationsRepository.clear();
     employeeRepository.clear();
+    organizationsRepository.clear();
   });
 
   it('should be defined', () => {

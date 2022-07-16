@@ -10,6 +10,7 @@ describe('EmployeeService', () => {
   let service: EmployeeService;
   let dataSource: DataSource;
   let employeeRepository: Repository<Employee>;
+  let organizationRepository: Repository<Organization>;
   let fakeOrganizationsService: Partial<OrganizationsService>;
 
   beforeEach(async () => {
@@ -17,12 +18,11 @@ describe('EmployeeService', () => {
       type: 'sqlite',
       database: 'test.sqlite',
       entities: [Employee, Organization],
-      synchronize: true,
     });
     await dataSource.initialize();
 
     employeeRepository = dataSource.getRepository(Employee);
-    const organizationRepository = dataSource.getRepository(Organization);
+    organizationRepository = dataSource.getRepository(Organization);
     const testOrganization = await organizationRepository.create({
       name: 'Test Organization',
       slug: 'test-organization',
@@ -45,6 +45,10 @@ describe('EmployeeService', () => {
           provide: OrganizationsService,
           useValue: fakeOrganizationsService,
         },
+        {
+          provide: getRepositoryToken(Organization),
+          useValue: organizationRepository,
+        },
       ],
     }).compile();
 
@@ -53,6 +57,7 @@ describe('EmployeeService', () => {
 
   afterEach(async () => {
     employeeRepository.clear();
+    organizationRepository.clear();
   });
 
   it('should be defined', () => {
