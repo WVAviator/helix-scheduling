@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -35,4 +36,9 @@ export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
   @IsEmail()
   @IsOptional()
   email: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @IsOptional()
+  organizationId: number;
 }

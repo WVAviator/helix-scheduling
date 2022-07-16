@@ -11,7 +11,7 @@ export class AuthService {
   constructor(private employeeService: EmployeeService) {}
 
   async createEmployee(createEmployeeDto: CreateEmployeeDto) {
-    const { name, email, title, password } = createEmployeeDto;
+    const { name, email, title, password, organizationId } = createEmployeeDto;
 
     const existingEmployee = await this.employeeService.findByEmail(email);
     if (existingEmployee) {
@@ -30,6 +30,7 @@ export class AuthService {
       email,
       title,
       password: result,
+      organizationId,
     });
     return employee;
   }

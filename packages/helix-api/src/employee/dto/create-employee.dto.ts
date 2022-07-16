@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Matches,
   MaxLength,
@@ -28,4 +29,8 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  organizationId: number;
 }

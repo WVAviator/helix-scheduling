@@ -1,5 +1,11 @@
 import { Organization } from './../../organizations/entities/organization.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Employee {
@@ -18,6 +24,9 @@ export class Employee {
   @Column()
   password: string;
 
-  // @ManyToOne(() => Organization, (organization) => organization.employees)
-  // organization: Organization;
+  @ManyToOne(() => Organization, (organization) => organization.employees, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'organizationId' })
+  organization: Organization;
 }

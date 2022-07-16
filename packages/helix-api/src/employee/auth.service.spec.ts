@@ -1,3 +1,4 @@
+import { Organization } from 'src/organizations/entities/organization.entity';
 import { Test } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -11,9 +12,17 @@ describe('AuthService', () => {
     const employees: Employee[] = [];
     fakeEmployeeService = {
       create: (createEmployeeDto: CreateEmployeeDto) => {
+        const { organizationId, ...rest } = createEmployeeDto;
+        const organization: Organization = {
+          id: organizationId,
+          name: 'Company',
+          slug: 'company',
+          employees: [],
+        };
         const employee = {
           id: Math.floor(Math.random() * 99999),
-          ...createEmployeeDto,
+          organization,
+          ...rest,
         } as Employee;
         employees.push(employee);
         return Promise.resolve(employee);
@@ -40,6 +49,7 @@ describe('AuthService', () => {
       email: 'john@gmail.com',
       password: '123!',
       title: 'Software Engineer',
+      organizationId: 1,
     });
     expect(employee.password).not.toBe('123!');
   });
@@ -50,6 +60,7 @@ describe('AuthService', () => {
       email: 'john@gmail.com',
       password: '123!',
       title: 'Software Engineer',
+      organizationId: 1,
     });
     const employee = await authService.authenticate('john@gmail.com', '123!');
     expect(employee).toBeDefined();
@@ -61,6 +72,7 @@ describe('AuthService', () => {
       email: 'john@gmail.com',
       password: '123!',
       title: 'Software Engineer',
+      organizationId: 1,
     });
     await expect(
       authService.authenticate('john@gmail.com', 'ABC!'),

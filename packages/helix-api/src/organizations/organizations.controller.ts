@@ -10,6 +10,7 @@ import {
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { AddEmployeeDto } from './dto/add-employee.dto';
 
 @Controller('organizations')
 export class OrganizationsController {
@@ -23,6 +24,11 @@ export class OrganizationsController {
   @Get()
   findAll() {
     return this.organizationsService.findAll();
+  }
+
+  @Get(':id/employees')
+  findEmployees(@Param('id') id: string) {
+    return this.organizationsService.findEmployees(+id);
   }
 
   @Get(':id')

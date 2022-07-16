@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EmployeeService } from '../employee/employee.service';
 import { Repository } from 'typeorm';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -47,6 +48,17 @@ export class OrganizationsService {
       (organization) => organization.slug,
     );
     return !existingSlugs.includes(slug);
+  }
+
+  async findEmployees(id: number) {
+    const organization = await this.organizationRepository.findOne({
+      where: { id },
+      relations: ['employees'],
+    });
+    if (!organization) {
+      throw new NotFoundException(`Organization with id ${id} not found`);
+    }
+    return organization.employees;
   }
 
   findAll() {

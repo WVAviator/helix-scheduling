@@ -1,5 +1,6 @@
+import { Employee } from '../employee/entities/employee.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Organization } from './entities/organization.entity';
 import { OrganizationsService } from './organizations.service';
@@ -8,17 +9,19 @@ describe('OrganizationsService', () => {
   let service: OrganizationsService;
   let dataSource: DataSource;
   let organizationsRepository: Repository<Organization>;
+  let employeeRepository: Repository<Employee>;
 
   beforeEach(async () => {
     dataSource = new DataSource({
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: [Organization],
+      entities: [Organization, Employee],
       synchronize: true,
     });
     await dataSource.initialize();
 
     organizationsRepository = dataSource.getRepository(Organization);
+    employeeRepository = dataSource.getRepository(Employee);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -26,6 +29,10 @@ describe('OrganizationsService', () => {
         {
           provide: getRepositoryToken(Organization),
           useValue: organizationsRepository,
+        },
+        {
+          provide: getRepositoryToken(Employee),
+          useValue: employeeRepository,
         },
       ],
     }).compile();
@@ -35,6 +42,7 @@ describe('OrganizationsService', () => {
 
   afterEach(async () => {
     organizationsRepository.clear();
+    employeeRepository.clear();
   });
 
   it('should be defined', () => {

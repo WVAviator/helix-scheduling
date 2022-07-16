@@ -1,3 +1,5 @@
+import { Organization } from '../organizations/entities/organization.entity';
+import { OrganizationsService } from './../organizations/organizations.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -8,17 +10,29 @@ describe('EmployeeService', () => {
   let service: EmployeeService;
   let dataSource: DataSource;
   let employeeRepository: Repository<Employee>;
+  let fakeOrganizationsService: Partial<OrganizationsService>;
 
   beforeEach(async () => {
     dataSource = new DataSource({
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: [Employee],
+      entities: [Employee, Organization],
       synchronize: true,
     });
     await dataSource.initialize();
 
     employeeRepository = dataSource.getRepository(Employee);
+    const organizationRepository = dataSource.getRepository(Organization);
+    const testOrganization = await organizationRepository.create({
+      name: 'Test Organization',
+      slug: 'test-organization',
+    });
+    await organizationRepository.save(testOrganization);
+    fakeOrganizationsService = {
+      findById: (id) => {
+        return Promise.resolve(testOrganization);
+      },
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -26,6 +40,10 @@ describe('EmployeeService', () => {
         {
           provide: getRepositoryToken(Employee),
           useValue: employeeRepository,
+        },
+        {
+          provide: OrganizationsService,
+          useValue: fakeOrganizationsService,
         },
       ],
     }).compile();
@@ -47,6 +65,7 @@ describe('EmployeeService', () => {
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
+      organizationId: 1,
     });
     const employees = await service.findAll();
     expect(employees.length).toBe(1);
@@ -61,6 +80,7 @@ describe('EmployeeService', () => {
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
+      organizationId: 1,
     });
     await service.update(employee.id, { email: 'john2@gmail.com' });
     const queriedEmployee = await service.findByEmail('john2@gmail.com');
@@ -75,6 +95,7 @@ describe('EmployeeService', () => {
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
+      organizationId: 1,
     });
     await service.remove(employee.id);
     const employees = await service.findAll();
@@ -87,6 +108,7 @@ describe('EmployeeService', () => {
       title: 'Software Engineer',
       email: 'john@gmail.com',
       password: '123!',
+      organizationId: 1,
     });
     await expect(service.remove(employee.id + 1)).rejects.toThrow();
     await expect(

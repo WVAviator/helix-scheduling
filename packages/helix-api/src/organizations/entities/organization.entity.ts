@@ -13,6 +13,6 @@ export class Organization {
   @Column()
   slug: string;
 
-  // @OneToMany(() => Employee, (employee) => employee.organization)
-  // employees: Employee[];
+  @OneToMany(() => Employee, (employee) => employee.organization)
+  employees: Employee[];
 }
