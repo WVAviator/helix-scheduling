@@ -17,7 +17,6 @@ export class AuthService {
 
   async createUser(createUserDto: CreateUserDto) {
     const { email, password, organizationId } = createUserDto;
-    console.log(password);
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
