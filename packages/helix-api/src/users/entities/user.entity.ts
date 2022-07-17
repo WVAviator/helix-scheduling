@@ -1,3 +1,4 @@
+import { Profile } from './../../profile/entities/profile.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   Column,

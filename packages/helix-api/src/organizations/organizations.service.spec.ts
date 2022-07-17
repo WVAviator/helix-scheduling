@@ -41,8 +41,8 @@ describe('OrganizationsService', () => {
   });
 
   afterEach(async () => {
-    userRepository.clear();
-    organizationsRepository.clear();
+    await userRepository.clear();
+    await organizationsRepository.clear();
   });
 
   it('should be defined', () => {
