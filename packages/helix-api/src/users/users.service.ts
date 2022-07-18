@@ -1,7 +1,7 @@
 import { OrganizationsService } from '../organizations/organizations.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsSelect, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -56,6 +56,15 @@ export class UsersService {
 
   findAll() {
     return this.userRepository.find();
+  }
+
+  findByOrganizationSlug(organizationSlug: string) {
+    const query = this.userRepository.createQueryBuilder('user');
+    query.innerJoin('user.organization', 'organization');
+    query.where('organization.slug = :organizationSlug', {
+      organizationSlug,
+    });
+    return query.getMany();
   }
 
   findById(id: number, options: FindUserOptions = {}) {

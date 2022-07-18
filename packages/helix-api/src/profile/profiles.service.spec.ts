@@ -155,8 +155,8 @@ describe('ProfilesService', () => {
     });
 
     const organization = testOrganizations[0];
-    const organizationProfiles = await profilesService.findByOrganizationId(
-      organization.id,
+    const organizationProfiles = await profilesService.findByOrganizationSlug(
+      organization.slug,
     );
     expect(organizationProfiles.map((profile) => profile.userId)).toEqual([
       testUsers[0].id,

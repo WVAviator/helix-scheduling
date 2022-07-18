@@ -49,17 +49,6 @@ export class OrganizationsService {
     return !existingSlugs.includes(slug);
   }
 
-  async findUsers(id: number) {
-    const organization = await this.organizationRepository.findOne({
-      where: { id },
-      relations: ['users'],
-    });
-    if (!organization) {
-      throw new NotFoundException(`Organization with id ${id} not found`);
-    }
-    return organization.users;
-  }
-
   findAll() {
     return this.organizationRepository.find();
   }

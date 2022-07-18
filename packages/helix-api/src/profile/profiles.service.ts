@@ -38,11 +38,11 @@ export class ProfilesService {
     return this.profilesRepository.find();
   }
 
-  findByOrganizationId(organizationId: number) {
+  findByOrganizationSlug(organizationSlug: string) {
     const query = this.profilesRepository.createQueryBuilder('profile');
     query.innerJoin('profile.user', 'user');
     query.innerJoin('user.organization', 'organization');
-    query.where('organization.id = :organizationId', { organizationId });
+    query.where('organization.slug = :organizationSlug', { organizationSlug });
     return query.getMany();
   }
 

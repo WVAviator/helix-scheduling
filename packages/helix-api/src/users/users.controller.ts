@@ -11,22 +11,26 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('users')
+@Controller()
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Get()
+  @Get('users')
   findAll() {
     return this.userService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/:id')
+  @Get('/:organizationSlug/users')
+  findByOrganizationSlug(@Param('organizationSlug') organizationSlug: string) {
+    return this.userService.findByOrganizationSlug(organizationSlug);
+  }
+
+  @Get('users/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findById(+id);
   }
 
-  @Patch('/:id')
+  @Patch('users/:id')
   update(
     @Param('id') id: string,
     @Body() updateUserDto: Partial<UpdateUserDto>,
@@ -34,7 +38,7 @@ export class UsersController {
     return this.userService.update(+id, updateUserDto);
   }
 
-  @Delete('/:id')
+  @Delete('users/:id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }

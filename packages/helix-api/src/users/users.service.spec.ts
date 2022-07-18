@@ -110,4 +110,23 @@ describe('UserService', () => {
       userService.update(user.id + 1, { email: 'john2@gmail.com' }),
     ).rejects.toThrow();
   });
+
+  it('finds all users by organization slug', async () => {
+    const user1 = await userService.create({
+      email: 'john@gmail.com',
+      password: '123!',
+      organizationId: 1,
+    });
+    const user2 = await userService.create({
+      email: 'john2@gmail.com',
+      password: '123!',
+      organizationId: 1,
+    });
+    const users = await userService.findByOrganizationSlug('test-organization');
+    expect(users.length).toBe(2);
+    expect(users.map((user) => user.email)).toEqual([
+      'john@gmail.com',
+      'john2@gmail.com',
+    ]);
+  });
 });
