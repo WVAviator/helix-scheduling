@@ -1,4 +1,4 @@
-import { Profile } from './../../profile/entities/profile.entity';
+import { Role } from './../../rbac/role.enum';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   Column,
@@ -24,4 +24,7 @@ export class User {
   })
   @JoinColumn({ name: 'organizationId' })
   organization: Organization;
+
+  @Column({ default: Role.USER })
+  role: Role = Role.USER;
 }

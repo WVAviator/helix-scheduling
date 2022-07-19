@@ -1,3 +1,4 @@
+import { Role } from './../rbac/role.enum';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -71,8 +72,8 @@ export class UsersService {
     return this.userRepository.findOne({
       where: { id },
       select: options.includePassword
-        ? ['id', 'email', 'password']
-        : ['id', 'email'],
+        ? ['id', 'email', 'password', 'role']
+        : ['id', 'email', 'role'],
     });
   }
 
@@ -92,6 +93,15 @@ export class UsersService {
     }
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
+  }
+
+  async setRole(id: number, role: Role) {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    user.role = role;
+    return await this.userRepository.save(user);
   }
 
   async remove(id: number) {

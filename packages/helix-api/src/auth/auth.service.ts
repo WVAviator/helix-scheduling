@@ -1,3 +1,4 @@
+import { SetRoleDto } from './dto/set-role.dto';
 import { User } from './../users/entities/user.entity';
 import { promisify } from 'util';
 import { UsersService } from '../users/users.service';
@@ -61,5 +62,10 @@ export class AuthService {
         secret: process.env.JWT_SECRET_KEY,
       }),
     };
+  }
+
+  setRole(setRoleDto: SetRoleDto) {
+    const { userId, role } = setRoleDto;
+    return this.usersService.setRole(userId, role);
   }
 }

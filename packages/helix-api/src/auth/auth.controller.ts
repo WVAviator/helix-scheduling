@@ -1,3 +1,4 @@
+import { SetRoleDto } from './dto/set-role.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -18,6 +19,12 @@ export class AuthController {
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.createUser(createUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('roles')
+  async setRole(@Body() setRoleDto: SetRoleDto) {
+    return this.authService.setRole(setRoleDto);
   }
 
   @UseGuards(LocalAuthGuard)
