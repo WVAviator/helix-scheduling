@@ -1,3 +1,4 @@
+import { OrganizationGuard } from './../organizations/organization.guard';
 import { JwtAuthGuard } from './../auth/jwt-auth.guard';
 import {
   Controller,
@@ -36,16 +37,20 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard, OrganizationGuard)
   @Get('/:organizationSlug/users')
   findByOrganizationSlug(@Param('organizationSlug') organizationSlug: string) {
     return this.usersService.findByOrganizationSlug(organizationSlug);
   }
 
+  @UseGuards(JwtAuthGuard, OrganizationGuard)
   @Get('users/:id')
   findOne(@Param('id') id: string) {
     return this.usersService.findById(+id);
   }
 
+  @RequireRole(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, OrganizationGuard, RolesGuard)
   @Patch('users/:id')
   update(
     @Param('id') id: string,
@@ -54,6 +59,8 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @RequireRole(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, OrganizationGuard, RolesGuard)
   @Delete('users/:id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);

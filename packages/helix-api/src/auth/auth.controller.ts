@@ -1,3 +1,5 @@
+import { Role } from './../rbac/role.enum';
+import { RolesGuard } from './../rbac/role.guard';
 import { SetRoleDto } from './dto/set-role.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -11,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { RequireRole } from '../rbac/role.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +24,8 @@ export class AuthController {
     return this.authService.createUser(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @RequireRole(Role.SUPERADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('roles')
   async setRole(@Body() setRoleDto: SetRoleDto) {
     return this.authService.setRole(setRoleDto);
@@ -31,11 +35,5 @@ export class AuthController {
   @Post('login')
   async login(@Request() req) {
     return this.authService.login(req.user);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('user')
-  getUser(@Request() req) {
-    return req.user;
   }
 }

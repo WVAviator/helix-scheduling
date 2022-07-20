@@ -57,6 +57,10 @@ export class OrganizationsService {
     return this.organizationRepository.findOne({ where: { id } });
   }
 
+  findBySlug(slug: string) {
+    return this.organizationRepository.findOne({ where: { slug } });
+  }
+
   async update(
     id: number,
     updateOrganizationDto: Partial<UpdateOrganizationDto>,
