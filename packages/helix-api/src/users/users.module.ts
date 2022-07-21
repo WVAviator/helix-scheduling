@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Shift])],
+  imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
