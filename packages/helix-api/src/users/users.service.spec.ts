@@ -1,5 +1,4 @@
-import { Organization } from '../organizations/entities/organization.entity';
-import { OrganizationsService } from '../organizations/organizations.service';
+import { Shift } from './../shifts/entities/shift.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -10,30 +9,19 @@ describe('UserService', () => {
   let userService: UsersService;
   let dataSource: DataSource;
   let userRepository: Repository<User>;
-  let organizationRepository: Repository<Organization>;
-  let fakeOrganizationsService: Partial<OrganizationsService>;
+  let shiftsRepository: Repository<Shift>;
 
   beforeEach(async () => {
     dataSource = new DataSource({
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: [User, Organization],
+      entities: [User, Shift],
       synchronize: true,
     });
     await dataSource.initialize();
 
     userRepository = dataSource.getRepository(User);
-    organizationRepository = dataSource.getRepository(Organization);
-    const testOrganization = await organizationRepository.create({
-      name: 'Test Organization',
-      slug: 'test-organization',
-    });
-    await organizationRepository.save(testOrganization);
-    fakeOrganizationsService = {
-      findById: (id) => {
-        return Promise.resolve(testOrganization);
-      },
-    };
+    shiftsRepository = dataSource.getRepository(Shift);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -43,12 +31,8 @@ describe('UserService', () => {
           useValue: userRepository,
         },
         {
-          provide: OrganizationsService,
-          useValue: fakeOrganizationsService,
-        },
-        {
-          provide: getRepositoryToken(Organization),
-          useValue: organizationRepository,
+          provide: getRepositoryToken(Shift),
+          useValue: shiftsRepository,
         },
       ],
     }).compile();
@@ -58,7 +42,6 @@ describe('UserService', () => {
 
   afterEach(async () => {
     await userRepository.clear();
-    await organizationRepository.clear();
   });
 
   it('should be defined', () => {
@@ -69,7 +52,8 @@ describe('UserService', () => {
     await userService.create({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     const users = await userService.findAll();
     expect(users.length).toBe(1);
@@ -80,7 +64,8 @@ describe('UserService', () => {
     const user = await userService.create({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     await userService.update(user.id, { email: 'john2@gmail.com' });
     const queriedUser = await userService.findByEmail('john2@gmail.com');
@@ -92,7 +77,8 @@ describe('UserService', () => {
     const user = await userService.create({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     await userService.remove(user.id);
     const users = await userService.findAll();
@@ -103,30 +89,12 @@ describe('UserService', () => {
     const user = await userService.create({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     await expect(userService.remove(user.id + 1)).rejects.toThrow();
     await expect(
       userService.update(user.id + 1, { email: 'john2@gmail.com' }),
     ).rejects.toThrow();
-  });
-
-  it('finds all users by organization slug', async () => {
-    const user1 = await userService.create({
-      email: 'john@gmail.com',
-      password: '123!',
-      organizationId: 1,
-    });
-    const user2 = await userService.create({
-      email: 'john2@gmail.com',
-      password: '123!',
-      organizationId: 1,
-    });
-    const users = await userService.findByOrganizationSlug('test-organization');
-    expect(users.length).toBe(2);
-    expect(users.map((user) => user.email)).toEqual([
-      'john@gmail.com',
-      'john2@gmail.com',
-    ]);
   });
 });

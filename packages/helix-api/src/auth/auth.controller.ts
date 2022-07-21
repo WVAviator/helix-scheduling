@@ -12,7 +12,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { RequireRole } from '../rbac/role.decorator';
 
 @Controller('auth')
@@ -24,7 +24,7 @@ export class AuthController {
     return this.authService.createUser(createUserDto);
   }
 
-  @RequireRole(Role.SUPERADMIN)
+  @RequireRole(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('roles')
   async setRole(@Body() setRoleDto: SetRoleDto) {

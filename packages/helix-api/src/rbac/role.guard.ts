@@ -32,7 +32,6 @@ export class RolesGuard implements CanActivate {
       [Role.USER]: 1,
       [Role.MANAGER]: 2,
       [Role.ADMIN]: 3,
-      [Role.SUPERADMIN]: 4,
     };
     console.log('User has role:', role, 'Required role is:', requiredRole);
 

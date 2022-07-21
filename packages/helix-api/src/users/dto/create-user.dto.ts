@@ -1,7 +1,6 @@
 import {
   IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsString,
   Matches,
   MaxLength,
@@ -10,7 +9,7 @@ import {
 
 export class CreateUserDto {
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   @MaxLength(32)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'password too weak',
@@ -22,7 +21,11 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  organizationId: number;
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 }

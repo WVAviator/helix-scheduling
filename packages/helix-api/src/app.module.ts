@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrganizationsModule } from './organizations/organizations.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { ProfilesModule } from './profile/profiles.module';
+import { ShiftsModule } from './shifts/shifts.module';
 
 @Module({
   imports: [
@@ -19,10 +18,9 @@ import { ProfilesModule } from './profile/profiles.module';
       envFilePath: ['../../.env'],
       isGlobal: true,
     }),
-    OrganizationsModule,
     UsersModule,
     AuthModule,
-    ProfilesModule,
+    ShiftsModule,
   ],
 })
 export class AppModule {}

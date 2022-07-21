@@ -1,12 +1,6 @@
+import { Shift } from './../../shifts/entities/shift.entity';
 import { Role } from './../../rbac/role.enum';
-import { Organization } from '../../organizations/entities/organization.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -19,12 +13,15 @@ export class User {
   @Column({ select: false })
   password: string;
 
-  @ManyToOne(() => Organization, (organization) => organization.users, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'organizationId' })
-  organization: Organization;
-
   @Column({ default: Role.USER })
   role: Role = Role.USER;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
+
+  @OneToMany(() => Shift, (shift) => shift.user, { cascade: true })
+  shifts: Shift[];
 }

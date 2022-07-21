@@ -5,7 +5,7 @@ import { UsersService } from '../users/users.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    const { email, password, organizationId } = createUserDto;
+    const { email, password, ...rest } = createUserDto;
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
@@ -32,7 +32,7 @@ export class AuthService {
     const user = this.usersService.create({
       email,
       password: result,
-      organizationId,
+      ...rest,
     });
     return user;
   }

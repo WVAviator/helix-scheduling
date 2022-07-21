@@ -1,5 +1,4 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { Organization } from 'src/organizations/entities/organization.entity';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { Test } from '@nestjs/testing';
@@ -14,17 +13,9 @@ describe('AuthService', () => {
     const users: User[] = [];
     fakeUserService = {
       create: (createUserDto: CreateUserDto) => {
-        const { organizationId, ...rest } = createUserDto;
-        const organization: Organization = {
-          id: organizationId,
-          name: 'Company',
-          slug: 'company',
-          users: [],
-        };
         const user = {
           id: Math.floor(Math.random() * 99999),
-          organization,
-          ...rest,
+          ...createUserDto,
         } as User;
         users.push(user);
         return Promise.resolve(user);
@@ -50,7 +41,8 @@ describe('AuthService', () => {
     const user = await authService.createUser({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     expect(user.password).not.toBe('123!');
   });
@@ -59,7 +51,8 @@ describe('AuthService', () => {
     await authService.createUser({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     const user = await authService.validateUser('john@gmail.com', '123!');
     expect(user).toBeDefined();
@@ -69,7 +62,8 @@ describe('AuthService', () => {
     await authService.createUser({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     await expect(
       authService.validateUser('john@gmail.com', 'ABC!'),
@@ -80,12 +74,14 @@ describe('AuthService', () => {
     const user1 = await authService.createUser({
       email: 'john@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'John',
+      lastName: 'Doe',
     });
     const user2 = await authService.createUser({
       email: 'jane@gmail.com',
       password: '123!',
-      organizationId: 1,
+      firstName: 'Jane',
+      lastName: 'Doe',
     });
     expect(user1.password).not.toBe(user2.password);
   });
