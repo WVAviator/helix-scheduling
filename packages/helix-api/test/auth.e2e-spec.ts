@@ -1,3 +1,7 @@
+import { ShiftsModule } from './../src/shifts/shifts.module';
+import { AuthModule } from './../src/auth/auth.module';
+import { UsersModule } from './../src/users/users.module';
+import { ConfigModule } from '@nestjs/config';
 import { generateRequest } from './../src/helpers/e2e-requests';
 import { Role } from './../src/rbac/role.enum';
 import { Shift } from './../src/shifts/entities/shift.entity';
@@ -16,7 +20,13 @@ describe('AuthController e2e', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        AppModule,
+        ConfigModule.forRoot({
+          envFilePath: ['../../.env'],
+          isGlobal: true,
+        }),
+        UsersModule,
+        AuthModule,
+        ShiftsModule,
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: 'e2e.sqlite',
