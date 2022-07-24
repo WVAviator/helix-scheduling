@@ -17,7 +17,7 @@ describe('AuthController e2e', () => {
         AppModule,
         TypeOrmModule.forRoot({
           type: 'sqlite',
-          database: 'e2etest.sqlite',
+          database: 'e2e.sqlite',
           entities: [User, Shift],
           logging: true,
           synchronize: true,
@@ -55,21 +55,52 @@ describe('AuthController e2e', () => {
       firstName: 'Joe',
       lastName: 'Test',
     };
-    const signUpResponse = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/signup')
       .send(newUser)
       .expect(201);
-    const logInResponse = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: newUser.email, password: newUser.password })
-      .expect(201);
+    const accessToken = (
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: newUser.email, password: newUser.password })
+        .expect(201)
+    ).body.access_token;
 
-    console.log(signUpResponse);
-    console.log(logInResponse);
+    expect(accessToken).toBeDefined();
+  });
 
-    const signUpResponseData = JSON.parse(signUpResponse.text);
-    const logInResponseData = JSON.parse(logInResponse.text);
+  it('should not allow access to guarded routes unless signed in', async () => {
+    const newUser = {
+      email: 'abc123@abc.com',
+      password: 'Awkward57!',
+      firstName: 'Joe',
+      lastName: 'Test',
+    };
 
-    expect(logInResponseData.access_token).toBeDefined();
+    const signedUpUser = (
+      await request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newUser)
+        .expect(201)
+    ).body.user;
+
+    await request(app.getHttpServer()).get('/users/me').send().expect(401);
+
+    const accessToken = (
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: newUser.email, password: newUser.password })
+        .expect(201)
+    ).body.access_token;
+
+    const retrievedUser: User = (
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send()
+        .expect(200)
+    ).body.user;
+
+    expect(retrievedUser).toEqual(signedUpUser);
   });
 });
