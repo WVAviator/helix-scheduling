@@ -1,3 +1,5 @@
+import { generateRequest } from './../src/helpers/e2e-requests';
+import { Role } from './../src/rbac/role.enum';
 import { Shift } from './../src/shifts/entities/shift.entity';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './../src/users/entities/user.entity';
@@ -5,7 +7,7 @@ import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 describe('AuthController e2e', () => {
   let app: INestApplication;
@@ -40,12 +42,23 @@ describe('AuthController e2e', () => {
     await app.close();
   });
 
+  const retrieveAccessToken = async (
+    email: string,
+    password: string,
+  ): Promise<string | null> => {
+    const { body } = await generateRequest(app, 'post', '/auth/login', {
+      email,
+      password,
+    });
+    return body.access_token;
+  };
+
   it('should not allow login if the user does not exist', async () => {
-    const email = `abcdefg@abcdefg.com`;
-    return request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email, password: 'test' })
-      .expect(401);
+    const res = await generateRequest(app, 'post', '/auth/login', {
+      email: 'abcdefg@abcdefg.com',
+      password: 'test',
+    });
+    expect(res.status).toEqual(401);
   });
 
   it('should allow creating and logging in a user', async () => {
@@ -55,16 +68,13 @@ describe('AuthController e2e', () => {
       firstName: 'Joe',
       lastName: 'Test',
     };
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send(newUser)
-      .expect(201);
-    const accessToken = (
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: newUser.email, password: newUser.password })
-        .expect(201)
-    ).body.access_token;
+
+    await generateRequest(app, 'post', '/auth/signup', newUser);
+
+    const accessToken = await retrieveAccessToken(
+      newUser.email,
+      newUser.password,
+    );
 
     expect(accessToken).toBeDefined();
   });
@@ -78,29 +88,76 @@ describe('AuthController e2e', () => {
     };
 
     const signedUpUser = (
-      await request(app.getHttpServer())
-        .post('/auth/signup')
-        .send(newUser)
-        .expect(201)
-    ).body.user;
+      await generateRequest(app, 'post', '/auth/signup', newUser)
+    ).body;
 
-    await request(app.getHttpServer()).get('/users/me').send().expect(401);
+    expect((await generateRequest(app, 'get', '/users/me')).status).toEqual(
+      401,
+    );
 
-    const accessToken = (
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({ email: newUser.email, password: newUser.password })
-        .expect(201)
-    ).body.access_token;
+    const accessToken = await retrieveAccessToken(
+      newUser.email,
+      newUser.password,
+    );
 
-    const retrievedUser: User = (
-      await request(app.getHttpServer())
-        .get('/users/me')
-        .set('Authorization', 'Bearer ' + accessToken)
-        .send()
-        .expect(200)
-    ).body.user;
+    const retrievedUser = (
+      await generateRequest(app, 'get', '/users/me', null, accessToken)
+    ).body;
 
-    expect(retrievedUser).toEqual(signedUpUser);
+    expect(retrievedUser.id).toEqual(signedUpUser.id);
+  });
+
+  it('deleting users requires admin priviliges', async () => {
+    const adminUser = {
+      email: 'abc123@abc.com',
+      password: 'Awkward57!',
+      firstName: 'Joe',
+      lastName: 'Test',
+    };
+    const deleteUser = {
+      email: 'deleteme@abc.com',
+      password: 'Awkward57!',
+      firstName: 'Don',
+      lastName: 'Test',
+    };
+    const adminUserSaved = (
+      await generateRequest(app, 'post', '/auth/signup', adminUser)
+    ).body;
+    const deleteUserSaved = (
+      await generateRequest(app, 'post', '/auth/signup', deleteUser)
+    ).body;
+
+    const accessToken = await retrieveAccessToken(
+      adminUser.email,
+      adminUser.password,
+    );
+    const deleteAttemptResponse = await generateRequest(
+      app,
+      'delete',
+      `/users/${deleteUserSaved.id}`,
+      null,
+      accessToken,
+    );
+    expect(deleteAttemptResponse.status).toEqual(403);
+
+    await usersRepository.save({ ...adminUserSaved, role: Role.ADMIN });
+
+    const deleteAttemptResponse2 = await generateRequest(
+      app,
+      'delete',
+      `/users/${deleteUserSaved.id}`,
+      null,
+      accessToken,
+    );
+    expect(deleteAttemptResponse2.status).toEqual(200);
+
+    const retrievedUserResponse = await generateRequest(
+      app,
+      'get',
+      `/users/${deleteUserSaved.id}`,
+      null,
+      accessToken,
+    );
+    expect(retrievedUserResponse.status).toEqual(404);
   });
 });

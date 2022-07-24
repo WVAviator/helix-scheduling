@@ -28,47 +28,43 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  findById(id: number, options: FindUserOptions = {}) {
-    return this.userRepository.findOne({
+  async findById(id: number, options: FindUserOptions = {}) {
+    const user = await this.userRepository.findOne({
       where: { id },
       select: options.includePassword
         ? ['id', 'email', 'password', 'role']
         : ['id', 'email', 'role'],
     });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
+    return user;
   }
 
-  findByEmail(email: string, options: FindUserOptions = {}) {
-    return this.userRepository.findOne({
+  async findByEmail(email: string, options: FindUserOptions = {}) {
+    const user = await this.userRepository.findOne({
       where: { email },
       select: options.includePassword
         ? ['id', 'email', 'password']
         : ['id', 'email'],
     });
+    return user;
   }
 
   async update(id: number, updateUserDto: Partial<UpdateUserDto>) {
     const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
   }
 
   async setRole(id: number, role: Role) {
     const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
     user.role = role;
     return await this.userRepository.save(user);
   }
 
   async remove(id: number) {
     const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
     return this.userRepository.remove(user);
   }
 }
