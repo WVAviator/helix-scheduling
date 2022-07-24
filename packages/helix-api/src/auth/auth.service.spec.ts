@@ -54,9 +54,9 @@ describe('AuthService', () => {
   });
 
   it('should reject an incorrect password', async () => {
-    await expect(
-      authService.validateUser('john@gmail.com', 'ABC!'),
-    ).rejects.toThrow();
+    const response = await authService.validateUser('john@gmail.com', 'ABC!');
+
+    expect(response).toBeNull();
   });
 
   it('two passwords should not have matching hashes', async () => {

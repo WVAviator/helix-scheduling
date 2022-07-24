@@ -1,7 +1,7 @@
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt } from 'passport-jwt';
 
 @Injectable()
@@ -19,10 +19,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.usersService.findById(payload.sub);
     console.log('Adding user to request:', user);
     if (!user) {
-      return null;
+      throw new UnauthorizedException(
+        'Login information incorrect or user does not exist.',
+      );
     }
     return user;
-
-    return { id: payload.sub, email: payload.username };
   }
 }

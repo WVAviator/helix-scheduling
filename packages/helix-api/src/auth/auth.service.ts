@@ -42,14 +42,14 @@ export class AuthService {
       includePassword: true,
     });
     if (!user) {
-      throw new BadRequestException(`User with email ${email} not found`);
+      return null;
     }
 
     const [salt, storedHash] = user.password.split('$');
     const hash = (await scrypt(password, salt, 32)) as Buffer;
 
     if (hash.toString('hex') !== storedHash) {
-      throw new BadRequestException('Invalid password');
+      return null;
     }
 
     return user;
