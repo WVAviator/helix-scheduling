@@ -53,18 +53,27 @@ export class UsersService {
 
   async update(id: number, updateUserDto: Partial<UpdateUserDto>) {
     const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
     Object.assign(user, updateUserDto);
     return this.userRepository.save(user);
   }
 
   async setRole(id: number, role: Role) {
     const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
     user.role = role;
     return await this.userRepository.save(user);
   }
 
   async remove(id: number) {
     const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found.`);
+    }
     return this.userRepository.remove(user);
   }
 }

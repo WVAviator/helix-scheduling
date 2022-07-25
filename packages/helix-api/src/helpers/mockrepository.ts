@@ -4,39 +4,55 @@ interface FindOptions {
   };
 }
 
-export class MockRepository<T> {
+interface HasId {
+  id: number;
+}
+
+export class MockRepository<T extends HasId> {
   constructor(private data: T[] = []) {}
 
   create(item: T): T {
     return item;
   }
 
+  compare<T>(whole: T, partial: Partial<T>): boolean {
+    if (typeof whole !== 'object' || typeof partial !== 'object') {
+      return whole === partial;
+    }
+    for (const key in partial) {
+      if (!this.compare(whole[key], partial[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   async find(options: FindOptions): Promise<T[]> {
     if (!options) {
       return this.data;
     }
-    return this.data.filter((item) => {
-      for (const key in options.where) {
-        if (item[key] !== options.where[key]) {
-          return false;
-        }
-      }
-      return true;
+    const results = this.data.filter((item) => {
+      return this.compare(item, options.where as Partial<typeof item>);
     });
+
+    return results;
   }
   async findOne(options: FindOptions): Promise<T> {
     const result = await this.find(options);
     if (result.length === 0) {
-      throw new Error('Not found');
+      return null;
     }
     return result[0];
   }
   async save(item: T): Promise<T> {
-    if (this.data.includes(item)) {
-      this.remove(item);
+    const oldItemIndex = this.data.findIndex((i) => i.id === item.id);
+    if (oldItemIndex > -1) {
+      this.data[oldItemIndex] = item;
+    } else {
+      item.id = Math.floor(Math.random() * 10000);
+      this.data.push(item);
     }
-    this.data.push(item);
-    return item;
+    return Promise.resolve(item);
   }
 
   async remove(item: T): Promise<T> {
